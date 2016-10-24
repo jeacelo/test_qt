@@ -144,8 +144,8 @@ void GUIPanel::onMQTT_Received(const QMQTT::Message &message)
  -----------------------------------------------------------*/
 void GUIPanel::onMQTT_Connected()
 {
-    QString topic(ui->topic->text());
-
+    QString topic("/cc3200/");
+    topic.append(ui->topic->text());
     ui->runButton->setEnabled(false);
 
     // Se indica que se ha realizado la conexión en la etiqueta 'statusLabel'
@@ -186,14 +186,15 @@ void GUIPanel::onMQTT_Connacked(quint8 ack)
 void GUIPanel::on_pushButton_2_toggled(bool checked)
 {
     QByteArray cadena;
-
+    QString topic ("/cc3200/");
 
     QJsonObject objeto_json;
     objeto_json["led"]=checked; //Añade un campo "led" al objeto JSON, con el valor (true o false) contenido en checked
                                 //Puedo hacer ["led"] porque el operador [] está sobreescrito.
     QJsonDocument mensaje(objeto_json); //crea un objeto de tivo QJsonDocument conteniendo el objeto objeto_json (necesario para obtener el mensaje formateado en JSON)
 
-    QMQTT::Message msg(0, ui->topic->text(), mensaje.toJson()); //Crea el mensaje MQTT contieniendo el mensaje en formato JSON//MOD
+    topic.append(ui->topic->text());
+    QMQTT::Message msg(0, topic, mensaje.toJson()); //Crea el mensaje MQTT contieniendo el mensaje en formato JSON//MOD
 
     //Publica el mensaje
     _client->publish(msg);
