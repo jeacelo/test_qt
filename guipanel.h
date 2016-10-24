@@ -34,6 +34,12 @@ private slots:
     void on_pushButton_2_toggled(bool checked);
     void on_pushButton_3_clicked();
 
+    void on_redKnob_valueChanged(double value);
+    void on_yellowKnob_valueChanged(double value);
+    void on_greenKnob_valueChanged(double value);
+
+    void on_pushButton_4_clicked();
+
 private: // funciones privadas
 //    void pingDevice();
     void startClient();

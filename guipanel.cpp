@@ -226,3 +226,40 @@ void GUIPanel::on_pushButton_3_clicked()
     //Publica el mensaje
     _client->publish(msg);
 }
+
+void GUIPanel::on_redKnob_valueChanged(double value)
+{
+    ui->red_lcdNumber->display(value);
+}
+
+void GUIPanel::on_yellowKnob_valueChanged(double value)
+{
+    ui->yellow_lcdNumber->display(value);
+}
+
+void GUIPanel::on_greenKnob_valueChanged(double value)
+{
+    ui->green_lcdNumber->display(value);
+}
+
+void GUIPanel::on_pushButton_4_clicked()
+{
+    QString topic ("/cc3200/");
+    QString redValue = QString::number(ui->redKnob->value());
+    QString yellowValue = QString::number(ui->yellowKnob->value());
+    QString greenValue = QString::number(ui->greenKnob->value());
+
+    QJsonObject objeto_json
+    {
+        {redValue, 1},
+        {yellowValue, 2},
+        {greenValue, 3}
+    };
+    QJsonDocument mensaje(objeto_json); //crea un objeto de tivo QJsonDocument conteniendo el objeto objeto_json (necesario para obtener el mensaje formateado en JSON)
+
+    topic.append(ui->topic->text());
+    QMQTT::Message msg(0, topic, mensaje.toJson()); //Crea el mensaje MQTT contieniendo el mensaje en formato JSON//MOD
+
+    //Publica el mensaje
+    _client->publish(msg);
+}
