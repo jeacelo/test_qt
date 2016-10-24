@@ -32,6 +32,7 @@ private slots:
     void onMQTT_subacked(quint16 msgid, quint8 qos);
 
     void on_pushButton_2_toggled(bool checked);
+    void on_pushButton_3_clicked();
 
 private: // funciones privadas
 //    void pingDevice();

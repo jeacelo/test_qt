@@ -209,3 +209,20 @@ void GUIPanel::on_pushButton_2_toggled(bool checked)
         ui->pushButton_2->setText("Enciende");
     }
 }
+
+void GUIPanel::on_pushButton_3_clicked()
+{
+    QString topic ("/cc3200/");
+
+    QJsonObject objeto_json
+    {
+        {ui->message->text(), 1}
+    };
+    QJsonDocument mensaje(objeto_json); //crea un objeto de tivo QJsonDocument conteniendo el objeto objeto_json (necesario para obtener el mensaje formateado en JSON)
+
+    topic.append(ui->topic->text());
+    QMQTT::Message msg(0, topic, mensaje.toJson()); //Crea el mensaje MQTT contieniendo el mensaje en formato JSON//MOD
+
+    //Publica el mensaje
+    _client->publish(msg);
+}
