@@ -245,16 +245,12 @@ void GUIPanel::on_greenKnob_valueChanged(double value)
 void GUIPanel::on_pushButton_4_clicked()
 {
     QString topic ("/cc3200/");
-    QString redValue = QString::number(ui->redKnob->value());
-    QString yellowValue = QString::number(ui->yellowKnob->value());
-    QString greenValue = QString::number(ui->greenKnob->value());
 
-    QJsonObject objeto_json
-    {
-        {redValue, 1},
-        {yellowValue, 2},
-        {greenValue, 3}
-    };
+    QJsonObject objeto_json;
+    objeto_json["r"]=ui->redKnob->value();
+    objeto_json["y"]=ui->yellowKnob->value();
+    objeto_json["g"]=ui->greenKnob->value();
+
     QJsonDocument mensaje(objeto_json); //crea un objeto de tivo QJsonDocument conteniendo el objeto objeto_json (necesario para obtener el mensaje formateado en JSON)
 
     topic.append(ui->topic->text());
