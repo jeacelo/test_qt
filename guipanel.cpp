@@ -13,7 +13,6 @@
 #include<stdint.h>      // Cabecera para usar tipos de enteros con tamaño
 #include<stdbool.h>     // Cabecera para usar booleanos
 
-
 GUIPanel::GUIPanel(QWidget *parent) :  // Constructor de la clase
     QWidget(parent),
     ui(new Ui::GUIPanel)               // Indica que guipanel.ui es el interfaz grafico de la clase
@@ -229,17 +228,32 @@ void GUIPanel::on_pushButton_3_clicked()
 
 void GUIPanel::on_redKnob_valueChanged(double value)
 {
-    ui->red_lcdNumber->display(value);
+    ui->red_lcdNumber->setValue(value);
 }
 
 void GUIPanel::on_yellowKnob_valueChanged(double value)
 {
-    ui->yellow_lcdNumber->display(value);
+    ui->yellow_lcdNumber->setValue(value);
 }
 
 void GUIPanel::on_greenKnob_valueChanged(double value)
 {
-    ui->green_lcdNumber->display(value);
+    ui->green_lcdNumber->setValue(value);
+}
+
+void GUIPanel::on_red_lcdNumber_valueChanged(int arg1)
+{
+    ui->redKnob->setValue(arg1);
+}
+
+void GUIPanel::on_yellow_lcdNumber_valueChanged(int arg1)
+{
+    ui->yellowKnob->setValue(arg1);
+}
+
+void GUIPanel::on_green_lcdNumber_valueChanged(int arg1)
+{
+    ui->greenKnob->setValue(arg1);
 }
 
 void GUIPanel::on_pushButton_4_clicked()
@@ -254,6 +268,7 @@ void GUIPanel::on_pushButton_4_clicked()
     QJsonDocument mensaje(objeto_json); //crea un objeto de tivo QJsonDocument conteniendo el objeto objeto_json (necesario para obtener el mensaje formateado en JSON)
 
     topic.append(ui->topic->text());
+
     QMQTT::Message msg(0, topic, mensaje.toJson()); //Crea el mensaje MQTT contieniendo el mensaje en formato JSON//MOD
 
     //Publica el mensaje
