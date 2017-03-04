@@ -188,7 +188,7 @@ void GUIPanel::on_pushButton_2_toggled(bool checked)
     QString topic ("/cc3200/");
 
     QJsonObject objeto_json;
-    objeto_json["led"]=checked; //Añade un campo "led" al objeto JSON, con el valor (true o false) contenido en checked
+    objeto_json["Led"]=checked; //Añade un campo "led" al objeto JSON, con el valor (true o false) contenido en checked
                                 //Puedo hacer ["led"] porque el operador [] está sobreescrito.
     QJsonDocument mensaje(objeto_json); //crea un objeto de tivo QJsonDocument conteniendo el objeto objeto_json (necesario para obtener el mensaje formateado en JSON)
 
@@ -226,29 +226,9 @@ void GUIPanel::on_pushButton_3_clicked()
     _client->publish(msg);
 }
 
-void GUIPanel::on_redKnob_valueChanged(double value)
-{
-    ui->red_lcdNumber->setValue(value);
-}
-
-void GUIPanel::on_yellowKnob_valueChanged(double value)
-{
-    ui->yellow_lcdNumber->setValue(value);
-}
-
-void GUIPanel::on_greenKnob_valueChanged(double value)
+/*void GUIPanel::on_greenKnob_valueChanged(double value)
 {
     ui->green_lcdNumber->setValue(value);
-}
-
-void GUIPanel::on_red_lcdNumber_valueChanged(int arg1)
-{
-    ui->redKnob->setValue(arg1);
-}
-
-void GUIPanel::on_yellow_lcdNumber_valueChanged(int arg1)
-{
-    ui->yellowKnob->setValue(arg1);
 }
 
 void GUIPanel::on_green_lcdNumber_valueChanged(int arg1)
@@ -273,4 +253,4 @@ void GUIPanel::on_pushButton_4_clicked()
 
     //Publica el mensaje
     _client->publish(msg);
-}
+}*/
