@@ -105,16 +105,19 @@
    </property>
   </widget>
   <widget class="QPushButton" name="pushButton_2">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="geometry">
     <rect>
-     <x>420</x>
-     <y>60</y>
+     <x>50</x>
+     <y>210</y>
      <width>101</width>
      <height>51</height>
     </rect>
    </property>
    <property name="text">
-    <string>Enciende</string>
+    <string>Modificar LEDs</string>
    </property>
    <property name="checkable">
     <bool>true</bool>
@@ -154,6 +157,45 @@
    </property>
    <property name="text">
     <string>Mensaje</string>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="redCheck">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>180</y>
+     <width>31</width>
+     <height>17</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>R</string>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="greenCheck">
+   <property name="geometry">
+    <rect>
+     <x>130</x>
+     <y>180</y>
+     <width>31</width>
+     <height>17</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>G</string>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="orangeCheck">
+   <property name="geometry">
+    <rect>
+     <x>80</x>
+     <y>180</y>
+     <width>31</width>
+     <height>17</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>O</string>
    </property>
   </widget>
  </widget>

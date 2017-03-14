@@ -182,32 +182,24 @@ void GUIPanel::onMQTT_Connacked(quint8 ack)
     ui->statusLabel->setText(tr("connacked: %1, %2").arg(ack).arg(ackStatus));
 }
 
-void GUIPanel::on_pushButton_2_toggled(bool checked)
+/*void GUIPanel::on_pushButton_2_toggled(bool checked)
 {
     QByteArray cadena;
     QString topic ("/cc3200/");
+    topic.append(ui->topic->text());
 
     QJsonObject objeto_json;
-    objeto_json["Led"]=checked; //Añade un campo "led" al objeto JSON, con el valor (true o false) contenido en checked
+    objeto_json["redLed"]=ui->redCheck->isChecked();
+    objeto_json["greenLed"]=ui->greenCheck->isChecked();
+    objeto_json["orangeLed"]=ui->orangeCheck->isChecked();
+    //Añade un campo "led" al objeto JSON, con el valor (true o false) contenido en checked
                                 //Puedo hacer ["led"] porque el operador [] está sobreescrito.
-    QJsonDocument mensaje(objeto_json); //crea un objeto de tivo QJsonDocument conteniendo el objeto objeto_json (necesario para obtener el mensaje formateado en JSON)
-
-    topic.append(ui->topic->text());
+    QJsonDocument mensaje(objeto_json); //crea un objeto de t-ivo QJsonDocument conteniendo el objeto objeto_json (necesario para obtener el mensaje formateado en JSON)
     QMQTT::Message msg(0, topic, mensaje.toJson()); //Crea el mensaje MQTT contieniendo el mensaje en formato JSON//MOD
 
     //Publica el mensaje
     _client->publish(msg);
-
-    if (checked)
-    {
-        ui->pushButton_2->setText("Apaga");
-
-    }
-    else
-    {
-        ui->pushButton_2->setText("Enciende");
-    }
-}
+}*/
 
 void GUIPanel::on_pushButton_3_clicked()
 {
@@ -254,3 +246,48 @@ void GUIPanel::on_pushButton_4_clicked()
     //Publica el mensaje
     _client->publish(msg);
 }*/
+
+void GUIPanel::on_redCheck_toggled(bool checked)
+{
+    QByteArray cadena;
+    QString topic ("/cc3200/");
+    topic.append(ui->topic->text());
+
+    QJsonObject objeto_json;
+    objeto_json["redLed"]=checked;
+    QJsonDocument mensaje(objeto_json); //crea un objeto de t-ivo QJsonDocument conteniendo el objeto objeto_json (necesario para obtener el mensaje formateado en JSON)
+    QMQTT::Message msg(0, topic, mensaje.toJson()); //Crea el mensaje MQTT contieniendo el mensaje en formato JSON//MOD
+
+    //Publica el mensaje
+    _client->publish(msg);
+}
+
+void GUIPanel::on_orangeCheck_toggled(bool checked)
+{
+    QByteArray cadena;
+    QString topic ("/cc3200/");
+    topic.append(ui->topic->text());
+
+    QJsonObject objeto_json;
+    objeto_json["orangeLed"]=checked;
+    QJsonDocument mensaje(objeto_json); //crea un objeto de t-ivo QJsonDocument conteniendo el objeto objeto_json (necesario para obtener el mensaje formateado en JSON)
+    QMQTT::Message msg(0, topic, mensaje.toJson()); //Crea el mensaje MQTT contieniendo el mensaje en formato JSON//MOD
+
+    //Publica el mensaje
+    _client->publish(msg);
+}
+
+void GUIPanel::on_greenCheck_toggled(bool checked)
+{
+    QByteArray cadena;
+    QString topic ("/cc3200/");
+    topic.append(ui->topic->text());
+
+    QJsonObject objeto_json;
+    objeto_json["greenLed"]=checked;
+    QJsonDocument mensaje(objeto_json); //crea un objeto de t-ivo QJsonDocument conteniendo el objeto objeto_json (necesario para obtener el mensaje formateado en JSON)
+    QMQTT::Message msg(0, topic, mensaje.toJson()); //Crea el mensaje MQTT contieniendo el mensaje en formato JSON//MOD
+
+    //Publica el mensaje
+    _client->publish(msg);
+}
