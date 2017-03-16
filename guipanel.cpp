@@ -98,11 +98,12 @@ void GUIPanel::on_pushButton_clicked()
 
 void GUIPanel::onMQTT_Received(const QMQTT::Message &message)
 {
-    bool previousblockinstate,checked;
+    //bool previousblockinstate
+    bool checked;
     if (connected)
     {
         //Deshacemos el escalado
-        previousblockinstate=ui->pushButton_2->blockSignals(true);   //Esto es para evitar que el cambio de valor
+        //previousblockinstate=ui->pushButton_2->blockSignals(true);   //Esto es para evitar que el cambio de valor
                                                              //provoque otro envio al topic por el que he recibido
 
         QJsonParseError error;
@@ -120,7 +121,7 @@ void GUIPanel::onMQTT_Received(const QMQTT::Message &message)
 
                 checked=entrada.toBool(); //Leo el valor de objeto (si fuese entero usaria toInt(), toDouble() si es doble....
 
-                ui->pushButton_2->setChecked(checked);
+                /*ui->pushButton_2->setChecked(checked);
                 if (checked)
                 {
                     ui->pushButton_2->setText("Apaga");
@@ -129,11 +130,11 @@ void GUIPanel::onMQTT_Received(const QMQTT::Message &message)
                 else
                 {
                     ui->pushButton_2->setText("Enciende");
-                }
+                }*/
             }
         }
 
-        ui->pushButton_2->blockSignals(previousblockinstate);
+        //ui->pushButton_2->blockSignals(previousblockinstate);
     }
 }
 
