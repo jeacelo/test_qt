@@ -40,6 +40,10 @@ private slots:
 
     void on_greenCheck_toggled(bool checked);
 
+    void on_pushButton_4_released();
+
+    void on_pushButton_5_released();
+
 private: // funciones privadas
 //    void pingDevice();
     void startClient();
