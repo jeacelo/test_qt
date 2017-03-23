@@ -13,6 +13,8 @@
 #include<stdint.h>      // Cabecera para usar tipos de enteros con tamaño
 #include<stdbool.h>     // Cabecera para usar booleanos
 
+int i=0;
+
 GUIPanel::GUIPanel(QWidget *parent) :  // Constructor de la clase
     QWidget(parent),
     ui(new Ui::GUIPanel)               // Indica que guipanel.ui es el interfaz grafico de la clase
@@ -38,6 +40,29 @@ GUIPanel::GUIPanel(QWidget *parent) :  // Constructor de la clase
     //connect(_client, SIGNAL(disconnected()), this, SLOT(onMQTT_disconnected()));
 
     connected=false;                 // Todavía no hemos establecido la conexión USB
+
+    ui->tempPlot->setTitle("Temperatura"); // Titulo de la grafica
+    ui->tempPlot->setAxisScale(QwtPlot::yLeft, -10, 50); // Escala fija
+    ui->tempPlot->setAxisScale(QwtPlot::xBottom,0,19);
+    ui->tempPlot->setAxisTitle(QwtPlot::yLeft, "ºC");
+    ui->tempPlot->setAxisTitle(QwtPlot::xBottom, "Muestras");
+
+    ChannelsDig = new QwtPlotCurve();
+    ChannelsDig->attach(ui->tempPlot);
+
+    for(int i = 0; i < 20; i++)
+    {
+        xValDig[i]=i;
+        yValDig[i]=0;
+    }
+
+    ChannelsDig->setRawSamples(xValDig,yValDig,20);
+
+    ChannelsDig->setPen(QPen(Qt::red));
+
+    m_GridDig = new QwtPlotGrid();     // Rejilla de puntos
+    m_GridDig->attach(ui->tempPlot);    // que se asocia al objeto QwtPl
+    ui->tempPlot->setAutoReplot(false); //Desactiva el autoreplot (mejora la eficiencia)
 }
 
 GUIPanel::~GUIPanel() // Destructor de la clase
@@ -98,42 +123,29 @@ void GUIPanel::on_pushButton_clicked()
 
 void GUIPanel::onMQTT_Received(const QMQTT::Message &message)
 {
-    bool previousblockinstate,checked;
     if (connected)
     {
-        //Deshacemos el escalado
-        previousblockinstate=ui->pushButton_2->blockSignals(true);   //Esto es para evitar que el cambio de valor
-                                                             //provoque otro envio al topic por el que he recibido
+        if (message.topic() == "/cc3200/PubTemp")
+        {
+            //Deshacemos el escalado
+            QJsonParseError error;
+            QJsonDocument mensaje=QJsonDocument::fromJson(message.payload(),&error);
 
-        QJsonParseError error;
-        QJsonDocument mensaje=QJsonDocument::fromJson(message.payload(),&error);
+            if ((error.error==QJsonParseError::NoError)&&(mensaje.isObject()))
+            { //Tengo que comprobar que el mensaje es del tipo adecuado y no hay errores de parseo...
 
-        if ((error.error==QJsonParseError::NoError)&&(mensaje.isObject()))
-        { //Tengo que comprobar que el mensaje es del tipo adecuado y no hay errores de parseo...
-
-            QJsonObject objeto_json=mensaje.object();
-            QJsonValue entrada=objeto_json["led"]; //Obtengo la entrada led. Esto lo puedo hacer porque el operador [] está sobreescrito
-
-
-            if (entrada.isBool())
-            {   //Compruebo que es booleano...
-
-                checked=entrada.toBool(); //Leo el valor de objeto (si fuese entero usaria toInt(), toDouble() si es doble....
-
-                ui->pushButton_2->setChecked(checked);
-                if (checked)
+                QJsonObject objeto_json=mensaje.object();
+                QJsonValue entrada=objeto_json["Temperature"]; //Obtengo la entrada led. Esto lo puedo hacer porque el operador [] está sobreescrito
+                ui->thermometer->setValue(entrada.toDouble());
+                if (i>19)
                 {
-                    ui->pushButton_2->setText("Apaga");
-
+                    i = 0;
                 }
-                else
-                {
-                    ui->pushButton_2->setText("Enciende");
-                }
+                yValDig[i] = entrada.toDouble();
+                ui->tempPlot->replot(); //Refresca la grafica una vez actualizados los valores
+                i++;
             }
         }
-
-        ui->pushButton_2->blockSignals(previousblockinstate);
     }
 }
 
@@ -145,6 +157,7 @@ void GUIPanel::onMQTT_Connected()
 {
     QString topic("/cc3200/");
     topic.append(ui->topic->text());
+    QString topic_temp("/cc3200/PubTemp");
     ui->runButton->setEnabled(false);
 
     // Se indica que se ha realizado la conexión en la etiqueta 'statusLabel'
@@ -153,6 +166,7 @@ void GUIPanel::onMQTT_Connected()
     connected=true;
 
     _client->subscribe(topic,0); //Se suscribe al mismo topic en el que publica...//MOD
+    _client->subscribe(topic_temp,0);
 }
 
 void GUIPanel::onMQTT_Connacked(quint8 ack)
@@ -181,25 +195,6 @@ void GUIPanel::onMQTT_Connacked(quint8 ack)
 
     ui->statusLabel->setText(tr("connacked: %1, %2").arg(ack).arg(ackStatus));
 }
-
-/*void GUIPanel::on_pushButton_2_toggled(bool checked)
-{
-    QByteArray cadena;
-    QString topic ("/cc3200/");
-    topic.append(ui->topic->text());
-
-    QJsonObject objeto_json;
-    objeto_json["redLed"]=ui->redCheck->isChecked();
-    objeto_json["greenLed"]=ui->greenCheck->isChecked();
-    objeto_json["orangeLed"]=ui->orangeCheck->isChecked();
-    //Añade un campo "led" al objeto JSON, con el valor (true o false) contenido en checked
-                                //Puedo hacer ["led"] porque el operador [] está sobreescrito.
-    QJsonDocument mensaje(objeto_json); //crea un objeto de t-ivo QJsonDocument conteniendo el objeto objeto_json (necesario para obtener el mensaje formateado en JSON)
-    QMQTT::Message msg(0, topic, mensaje.toJson()); //Crea el mensaje MQTT contieniendo el mensaje en formato JSON//MOD
-
-    //Publica el mensaje
-    _client->publish(msg);
-}*/
 
 void GUIPanel::on_pushButton_3_clicked()
 {
@@ -299,7 +294,7 @@ void GUIPanel::on_pushButton_4_released()
     topic.append(ui->topic->text());
 
     QJsonObject objeto_json;
-    objeto_json["LED"]=ui->Knob->value();
+    objeto_json["LED"]=ui->ledKnob->value();
     objeto_json["R"]=ui->colorWheel->color().red();
     objeto_json["G"]=ui->colorWheel->color().green();
     objeto_json["B"]=ui->colorWheel->color().blue();
@@ -312,7 +307,7 @@ void GUIPanel::on_pushButton_4_released()
 
 void GUIPanel::on_pushButton_5_released()
 {
-    for (int i = 0; i < ui->Knob->maximum()+1; i++)
+    for (int i = 0; i < ui->ledKnob->maximum()+1; i++)
     {
         QByteArray cadena;
         QString topic ("/cc3200/");

@@ -4,6 +4,8 @@
 #include <QWidget>
 #include <QtSerialPort/qserialport.h>
 #include "qmqtt.h"
+#include <qwt_plot_curve.h>
+#include <qwt_plot_grid.h>
 
 namespace Ui {
 class GUIPanel;
@@ -31,7 +33,6 @@ private slots:
     void onMQTT_subscribed(const QString &topic);
     void onMQTT_subacked(quint16 msgid, quint8 qos);
 
-    //void on_pushButton_2_toggled(bool checked);
     void on_pushButton_3_clicked();
 
     void on_redCheck_toggled(bool checked);
@@ -55,6 +56,11 @@ private:
     int transactionCount;
     QMQTT::Client *_client;
     bool connected;
+
+    double xValDig[20]; //valores eje X
+    double yValDig[20]; //valores ejes Y
+    QwtPlotCurve *ChannelsDig; //Curvas
+    QwtPlotGrid  *m_GridDig; //Cuadricula
 };
 
 #endif // GUIPANEL_H
