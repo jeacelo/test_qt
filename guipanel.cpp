@@ -63,6 +63,32 @@ GUIPanel::GUIPanel(QWidget *parent) :  // Constructor de la clase
     m_GridDig = new QwtPlotGrid();     // Rejilla de puntos
     m_GridDig->attach(ui->tempPlot);    // que se asocia al objeto QwtPl
     ui->tempPlot->setAutoReplot(false); //Desactiva el autoreplot (mejora la eficiencia)
+    ui->tempPlot->setAxisScale(QwtPlot::yLeft, -10, 50); // Escala fija
+    ui->tempPlot->setAxisScale(QwtPlot::xBottom,0,19);
+    ui->accPlot->setTitle("Aceleracion"); // Titulo de la grafica
+    ui->accPlot->setAxisScale(QwtPlot::yLeft, -10, 50); // Escala fija
+    ui->accPlot->setAxisScale(QwtPlot::xBottom,0,19);
+    ui->accPlot->setAxisTitle(QwtPlot::yLeft, "g");
+    ui->accPlot->setAxisTitle(QwtPlot::xBottom, "Muestras");
+
+    ChannelsDig_2 = new QwtPlotCurve();
+    ChannelsDig_2->attach(ui->accPlot);
+
+    for(int i = 0; i < 20; i++)
+    {
+        xValDig_acc[i]=i;
+        yValDig_x[i]=0;
+        yValDig_y[i]=0;
+        yValDig_z[i]=0;
+    }
+
+    ChannelsDig_2->setRawSamples(xValDig_acc,yValDig_x,20);
+    ChannelsDig_2->setRawSamples(xValDig_acc,yValDig_y,20);
+    ChannelsDig_2->setRawSamples(xValDig_acc,yValDig_z,20);
+
+    ChannelsDig_2->setPen(QPen(Qt::red));
+
+    m_GridDig->attach(ui->tempPlot);    // que se asocia al objeto QwtPl
 }
 
 GUIPanel::~GUIPanel() // Destructor de la clase
@@ -125,7 +151,7 @@ void GUIPanel::onMQTT_Received(const QMQTT::Message &message)
 {
     if (connected)
     {
-        if (message.topic() == "/cc3200/PubTemp")
+        if (message.topic() == "/cc3200/Temp")
         {
             //Deshacemos el escalado
             QJsonParseError error;
@@ -139,13 +165,48 @@ void GUIPanel::onMQTT_Received(const QMQTT::Message &message)
                 ui->thermometer->setValue(entrada.toDouble());
                 if (i>19)
                 {
+                    for (int j = 0; j < 19; j++)
+                    {
+                        yValDig[j]=yValDig[j+1];
+                    }
+                    yValDig[i-1] = entrada.toDouble();
+                }
+                else
+                {
+                    yValDig[i] = entrada.toDouble();
+                    i++;
+                }
+                ui->tempPlot->replot(); //Refresca la grafica una vez actualizados los valores
+            }
+        }
+        /*if (message.topic() == "/cc3200/Acc")
+        {
+            //Deshacemos el escalado
+            QJsonParseError error;
+            QJsonDocument mensaje=QJsonDocument::fromJson(message.payload(),&error);
+
+            if ((error.error==QJsonParseError::NoError)&&(mensaje.isObject()))
+            { //Tengo que comprobar que el mensaje es del tipo adecuado y no hay errores de parseo...
+
+                QJsonObject objeto_json=mensaje.object();
+                QJsonValue entrada_X=objeto_json["AccX"]; //Obtengo la entrada led. Esto lo puedo hacer porque el operador [] está sobreescrito
+                QJsonValue entrada_Y=objeto_json["AccY"]; //Obtengo la entrada led. Esto lo puedo hacer porque el operador [] está sobreescrito
+                QJsonValue entrada_Z=objeto_json["AccZ"]; //Obtengo la entrada led. Esto lo puedo hacer porque el operador [] está sobreescrito
+                ui->accX->display(entrada_X.toDouble());
+                ui->accY->display(entrada_Y.toDouble());
+                ui->accZ->display(entrada_Z.toDouble());
+                if (i>19)
+                {
                     i = 0;
                 }
                 yValDig[i] = entrada.toDouble();
+                ui->tempPlot->setAxisAutoScale(QwtPlot::yLeft, true);
+                ui->tempPlot->setAxisAutoScale(QwtPlot::yRight, true);
+                ui->tempPlot->updateAxes();
                 ui->tempPlot->replot(); //Refresca la grafica una vez actualizados los valores
                 i++;
             }
-        }
+        }*/
     }
 }
 
@@ -157,7 +218,8 @@ void GUIPanel::onMQTT_Connected()
 {
     QString topic("/cc3200/");
     topic.append(ui->topic->text());
-    QString topic_temp("/cc3200/PubTemp");
+    QString topic_temp("/cc3200/Temp");
+    QString topic_acc("/cc3200/Acc");
     ui->runButton->setEnabled(false);
 
     // Se indica que se ha realizado la conexión en la etiqueta 'statusLabel'
@@ -167,6 +229,7 @@ void GUIPanel::onMQTT_Connected()
 
     _client->subscribe(topic,0); //Se suscribe al mismo topic en el que publica...//MOD
     _client->subscribe(topic_temp,0);
+    _client->subscribe(topic_acc,0);
 }
 
 void GUIPanel::onMQTT_Connacked(quint8 ack)

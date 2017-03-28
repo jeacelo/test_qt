@@ -61,6 +61,11 @@ private:
     double yValDig[20]; //valores ejes Y
     QwtPlotCurve *ChannelsDig; //Curvas
     QwtPlotGrid  *m_GridDig; //Cuadricula
+    double xValDig_acc[20]; //valores eje X
+    double yValDig_x[20]; //valores ejes Y
+    double yValDig_y[20]; //valores ejes Y
+    double yValDig_z[20]; //valores ejes Y
+    QwtPlotCurve *ChannelsDig_2; //Curvas
 };
 
 #endif // GUIPANEL_H
