@@ -13,7 +13,10 @@
 #include<stdint.h>      // Cabecera para usar tipos de enteros con tamaño
 #include<stdbool.h>     // Cabecera para usar booleanos
 
+#define SAMPLES 20
+
 int i=0;
+int j=0;
 
 GUIPanel::GUIPanel(QWidget *parent) :  // Constructor de la clase
     QWidget(parent),
@@ -43,52 +46,61 @@ GUIPanel::GUIPanel(QWidget *parent) :  // Constructor de la clase
 
     ui->tempPlot->setTitle("Temperatura"); // Titulo de la grafica
     ui->tempPlot->setAxisScale(QwtPlot::yLeft, -10, 50); // Escala fija
-    ui->tempPlot->setAxisScale(QwtPlot::xBottom,0,19);
+    ui->tempPlot->setAxisScale(QwtPlot::xBottom,0,SAMPLES-1);
     ui->tempPlot->setAxisTitle(QwtPlot::yLeft, "ºC");
     ui->tempPlot->setAxisTitle(QwtPlot::xBottom, "Muestras");
 
-    ChannelsDig = new QwtPlotCurve();
-    ChannelsDig->attach(ui->tempPlot);
+    curve_temp = new QwtPlotCurve();
+    curve_temp->attach(ui->tempPlot);
 
-    for(int i = 0; i < 20; i++)
+    for(int i = 0; i < SAMPLES; i++)
     {
-        xValDig[i]=i;
-        yValDig[i]=0;
+        xValDig_temp[i]=i;
+        yValDig_temp[i]=0;
     }
 
-    ChannelsDig->setRawSamples(xValDig,yValDig,20);
+    curve_temp->setRawSamples(xValDig_temp,yValDig_temp,SAMPLES);
 
-    ChannelsDig->setPen(QPen(Qt::red));
+    curve_temp->setPen(QPen(Qt::red));
 
     m_GridDig = new QwtPlotGrid();     // Rejilla de puntos
     m_GridDig->attach(ui->tempPlot);    // que se asocia al objeto QwtPl
+
     ui->tempPlot->setAutoReplot(false); //Desactiva el autoreplot (mejora la eficiencia)
-    ui->tempPlot->setAxisScale(QwtPlot::yLeft, -10, 50); // Escala fija
-    ui->tempPlot->setAxisScale(QwtPlot::xBottom,0,19);
+
     ui->accPlot->setTitle("Aceleracion"); // Titulo de la grafica
-    ui->accPlot->setAxisScale(QwtPlot::yLeft, -10, 50); // Escala fija
-    ui->accPlot->setAxisScale(QwtPlot::xBottom,0,19);
+    ui->accPlot->setAxisScale(QwtPlot::yLeft, -100, 100); // Escala fija
+    ui->accPlot->setAxisScale(QwtPlot::xBottom,0,SAMPLES-1);
     ui->accPlot->setAxisTitle(QwtPlot::yLeft, "g");
     ui->accPlot->setAxisTitle(QwtPlot::xBottom, "Muestras");
 
-    ChannelsDig_2 = new QwtPlotCurve();
-    ChannelsDig_2->attach(ui->accPlot);
+    curve_accx = new QwtPlotCurve();
+    curve_accy = new QwtPlotCurve();
+    curve_accz = new QwtPlotCurve();
+    curve_accx->attach(ui->accPlot);
+    curve_accy->attach(ui->accPlot);
+    curve_accz->attach(ui->accPlot);
 
-    for(int i = 0; i < 20; i++)
+    for(int i = 0; i < SAMPLES; i++)
     {
         xValDig_acc[i]=i;
-        yValDig_x[i]=0;
-        yValDig_y[i]=0;
-        yValDig_z[i]=0;
+        yValDig_acc_x[i]=0;
+        yValDig_acc_y[i]=0;
+        yValDig_acc_z[i]=0;
     }
 
-    ChannelsDig_2->setRawSamples(xValDig_acc,yValDig_x,20);
-    ChannelsDig_2->setRawSamples(xValDig_acc,yValDig_y,20);
-    ChannelsDig_2->setRawSamples(xValDig_acc,yValDig_z,20);
+    curve_accx->setRawSamples(xValDig_acc,yValDig_acc_x,SAMPLES);
+    curve_accy->setRawSamples(xValDig_acc,yValDig_acc_y,SAMPLES);
+    curve_accz->setRawSamples(xValDig_acc,yValDig_acc_z,SAMPLES);
 
-    ChannelsDig_2->setPen(QPen(Qt::red));
+    curve_accx->setPen(QPen(Qt::red));
+    curve_accy->setPen(QPen(Qt::green));
+    curve_accz->setPen(QPen(Qt::blue));
 
-    m_GridDig->attach(ui->tempPlot);    // que se asocia al objeto QwtPl
+    m_GridDig_2 = new QwtPlotGrid();     // Rejilla de puntos
+    m_GridDig_2->attach(ui->accPlot);    // que se asocia al objeto QwtPl
+
+    ui->accPlot->setAutoReplot(false); //Desactiva el autoreplot (mejora la eficiencia)
 }
 
 GUIPanel::~GUIPanel() // Destructor de la clase
@@ -165,21 +177,21 @@ void GUIPanel::onMQTT_Received(const QMQTT::Message &message)
                 ui->thermometer->setValue(entrada.toDouble());
                 if (i>19)
                 {
-                    for (int j = 0; j < 19; j++)
+                    for (int k = 0; k < 19; k++)
                     {
-                        yValDig[j]=yValDig[j+1];
+                        yValDig_temp[k]=yValDig_temp[k+1];
                     }
-                    yValDig[i-1] = entrada.toDouble();
+                    yValDig_temp[i-1] = entrada.toDouble();
                 }
                 else
                 {
-                    yValDig[i] = entrada.toDouble();
+                    yValDig_temp[i] = entrada.toDouble();
                     i++;
                 }
                 ui->tempPlot->replot(); //Refresca la grafica una vez actualizados los valores
             }
         }
-        /*if (message.topic() == "/cc3200/Acc")
+        if (message.topic() == "/cc3200/Acc")
         {
             //Deshacemos el escalado
             QJsonParseError error;
@@ -195,18 +207,28 @@ void GUIPanel::onMQTT_Received(const QMQTT::Message &message)
                 ui->accX->display(entrada_X.toDouble());
                 ui->accY->display(entrada_Y.toDouble());
                 ui->accZ->display(entrada_Z.toDouble());
-                if (i>19)
+                if (j>19)
                 {
-                    i = 0;
+                    for (int k = 0; k < 19; k++)
+                    {
+                        yValDig_acc_x[k]=yValDig_acc_x[k+1];
+                        yValDig_acc_y[k]=yValDig_acc_y[k+1];
+                        yValDig_acc_z[k]=yValDig_acc_z[k+1];
+                    }
+                    yValDig_acc_x[j-1] = entrada_X.toDouble();
+                    yValDig_acc_y[j-1] = entrada_Y.toDouble();
+                    yValDig_acc_z[j-1] = entrada_Z.toDouble();
                 }
-                yValDig[i] = entrada.toDouble();
-                ui->tempPlot->setAxisAutoScale(QwtPlot::yLeft, true);
-                ui->tempPlot->setAxisAutoScale(QwtPlot::yRight, true);
-                ui->tempPlot->updateAxes();
-                ui->tempPlot->replot(); //Refresca la grafica una vez actualizados los valores
-                i++;
+                else
+                {
+                    yValDig_acc_x[j] = entrada_X.toDouble();
+                    yValDig_acc_y[j] = entrada_Y.toDouble();
+                    yValDig_acc_z[j] = entrada_Z.toDouble();
+                    j++;
+                }
+                ui->accPlot->replot(); //Refresca la grafica una vez actualizados los valores
             }
-        }*/
+        }
     }
 }
 
@@ -387,4 +409,36 @@ void GUIPanel::on_pushButton_5_released()
         //Publica el mensaje
         _client->publish(msg);
     }
+}
+
+void GUIPanel::on_run_temp_released()
+{
+    QByteArray cadena;
+    QString topic ("/cc3200/Sensors");
+
+    QJsonObject objeto_json;
+    objeto_json["TEMP"]=ui->ref_temp->value();
+    objeto_json["ACC"]=0;
+
+    QJsonDocument mensaje(objeto_json); //crea un objeto de t-ivo QJsonDocument conteniendo el objeto objeto_json (necesario para obtener el mensaje formateado en JSON)
+    QMQTT::Message msg(0, topic, mensaje.toJson()); //Crea el mensaje MQTT contieniendo el mensaje en formato JSON//MOD
+
+    //Publica el mensaje
+    _client->publish(msg);
+}
+
+void GUIPanel::on_run_acc_released()
+{
+    QByteArray cadena;
+    QString topic ("/cc3200/Sensors");
+
+    QJsonObject objeto_json;
+    objeto_json["ACC"]=ui->ref_acc->value();
+    objeto_json["TEMP"]=0;
+
+    QJsonDocument mensaje(objeto_json); //crea un objeto de t-ivo QJsonDocument conteniendo el objeto objeto_json (necesario para obtener el mensaje formateado en JSON)
+    QMQTT::Message msg(0, topic, mensaje.toJson()); //Crea el mensaje MQTT contieniendo el mensaje en formato JSON//MOD
+
+    //Publica el mensaje
+    _client->publish(msg);
 }

@@ -45,6 +45,10 @@ private slots:
 
     void on_pushButton_5_released();
 
+    void on_run_temp_released();
+
+    void on_run_acc_released();
+
 private: // funciones privadas
 //    void pingDevice();
     void startClient();
@@ -57,15 +61,20 @@ private:
     QMQTT::Client *_client;
     bool connected;
 
-    double xValDig[20]; //valores eje X
-    double yValDig[20]; //valores ejes Y
-    QwtPlotCurve *ChannelsDig; //Curvas
-    QwtPlotGrid  *m_GridDig; //Cuadricula
+    double xValDig_temp[20]; //valores eje X
+    double yValDig_temp[20]; //valores ejes Y
     double xValDig_acc[20]; //valores eje X
-    double yValDig_x[20]; //valores ejes Y
-    double yValDig_y[20]; //valores ejes Y
-    double yValDig_z[20]; //valores ejes Y
-    QwtPlotCurve *ChannelsDig_2; //Curvas
+    double yValDig_acc_x[20]; //valores ejes Y
+    double yValDig_acc_y[20]; //valores ejes Y
+    double yValDig_acc_z[20]; //valores ejes Y
+
+    QwtPlotCurve *curve_temp; //Curvas
+    QwtPlotCurve *curve_accx; //Curvas
+    QwtPlotCurve *curve_accy; //Curvas
+    QwtPlotCurve *curve_accz; //Curvas
+
+    QwtPlotGrid  *m_GridDig; //Cuadricula
+    QwtPlotGrid  *m_GridDig_2; //Cuadricula
 };
 
 #endif // GUIPANEL_H

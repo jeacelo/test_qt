@@ -330,6 +330,44 @@
       <string> [ºC]</string>
      </property>
     </widget>
+    <widget class="QDoubleSpinBox" name="ref_temp">
+     <property name="geometry">
+      <rect>
+       <x>40</x>
+       <y>320</y>
+       <width>62</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="buttonSymbols">
+      <enum>QAbstractSpinBox::UpDownArrows</enum>
+     </property>
+     <property name="showGroupSeparator" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="decimals">
+      <number>0</number>
+     </property>
+     <property name="maximum">
+      <double>5000.000000000000000</double>
+     </property>
+     <property name="singleStep">
+      <double>50.000000000000000</double>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="run_temp">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>280</y>
+       <width>75</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>ON</string>
+     </property>
+    </widget>
    </widget>
    <widget class="QWidget" name="tab_4">
     <attribute name="title">
@@ -338,7 +376,7 @@
     <widget class="QLCDNumber" name="accX">
      <property name="geometry">
       <rect>
-       <x>70</x>
+       <x>200</x>
        <y>20</y>
        <width>64</width>
        <height>23</height>
@@ -348,7 +386,7 @@
     <widget class="QLCDNumber" name="accY">
      <property name="geometry">
       <rect>
-       <x>270</x>
+       <x>330</x>
        <y>20</y>
        <width>64</width>
        <height>23</height>
@@ -368,7 +406,7 @@
     <widget class="QLabel" name="label_4">
      <property name="geometry">
       <rect>
-       <x>50</x>
+       <x>180</x>
        <y>30</y>
        <width>47</width>
        <height>13</height>
@@ -381,7 +419,7 @@
     <widget class="QLabel" name="label_5">
      <property name="geometry">
       <rect>
-       <x>250</x>
+       <x>310</x>
        <y>30</y>
        <width>47</width>
        <height>13</height>
@@ -412,6 +450,38 @@
        <width>531</width>
        <height>301</height>
       </rect>
+     </property>
+    </widget>
+    <widget class="QDoubleSpinBox" name="ref_acc">
+     <property name="geometry">
+      <rect>
+       <x>110</x>
+       <y>20</y>
+       <width>62</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="decimals">
+      <number>0</number>
+     </property>
+     <property name="maximum">
+      <double>5000.000000000000000</double>
+     </property>
+     <property name="singleStep">
+      <double>50.000000000000000</double>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="run_acc">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>20</y>
+       <width>75</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>ON</string>
      </property>
     </widget>
    </widget>
