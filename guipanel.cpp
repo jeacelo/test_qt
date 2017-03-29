@@ -418,7 +418,7 @@ void GUIPanel::on_run_temp_released()
 
     QJsonObject objeto_json;
     objeto_json["TEMP"]=ui->ref_temp->value();
-    objeto_json["ACC"]=0;
+    objeto_json["ACC"]=-1;
 
     QJsonDocument mensaje(objeto_json); //crea un objeto de t-ivo QJsonDocument conteniendo el objeto objeto_json (necesario para obtener el mensaje formateado en JSON)
     QMQTT::Message msg(0, topic, mensaje.toJson()); //Crea el mensaje MQTT contieniendo el mensaje en formato JSON//MOD
@@ -434,7 +434,7 @@ void GUIPanel::on_run_acc_released()
 
     QJsonObject objeto_json;
     objeto_json["ACC"]=ui->ref_acc->value();
-    objeto_json["TEMP"]=0;
+    objeto_json["TEMP"]=-1;
 
     QJsonDocument mensaje(objeto_json); //crea un objeto de t-ivo QJsonDocument conteniendo el objeto objeto_json (necesario para obtener el mensaje formateado en JSON)
     QMQTT::Message msg(0, topic, mensaje.toJson()); //Crea el mensaje MQTT contieniendo el mensaje en formato JSON//MOD
