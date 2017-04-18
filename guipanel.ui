@@ -23,22 +23,12 @@
     </rect>
    </property>
    <property name="currentIndex">
-    <number>3</number>
+    <number>0</number>
    </property>
    <widget class="QWidget" name="tab_3">
     <attribute name="title">
      <string>MQTT</string>
     </attribute>
-    <widget class="QLineEdit" name="message">
-     <property name="geometry">
-      <rect>
-       <x>170</x>
-       <y>150</y>
-       <width>161</width>
-       <height>61</height>
-      </rect>
-     </property>
-    </widget>
     <widget class="QLineEdit" name="topic">
      <property name="geometry">
       <rect>
@@ -52,7 +42,7 @@
       <string>rxtopic</string>
      </property>
     </widget>
-    <widget class="QPushButton" name="pushButton_3">
+    <widget class="QPushButton" name="config">
      <property name="geometry">
       <rect>
        <x>360</x>
@@ -62,13 +52,13 @@
       </rect>
      </property>
      <property name="text">
-      <string>Enviar mensaje</string>
+      <string>Configurar</string>
      </property>
     </widget>
     <widget class="QLabel" name="label_2">
      <property name="geometry">
       <rect>
-       <x>110</x>
+       <x>90</x>
        <y>120</y>
        <width>71</width>
        <height>16</height>
@@ -91,19 +81,6 @@
       <string>Detenido</string>
      </property>
     </widget>
-    <widget class="QLabel" name="label_3">
-     <property name="geometry">
-      <rect>
-       <x>110</x>
-       <y>170</y>
-       <width>47</width>
-       <height>13</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Mensaje</string>
-     </property>
-    </widget>
     <widget class="QPushButton" name="pushButton">
      <property name="geometry">
       <rect>
@@ -120,7 +97,7 @@
     <widget class="QLabel" name="label">
      <property name="geometry">
       <rect>
-       <x>100</x>
+       <x>90</x>
        <y>90</y>
        <width>62</width>
        <height>13</height>
@@ -154,6 +131,58 @@
      </property>
      <property name="text">
       <string>Inicio</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_3">
+     <property name="geometry">
+      <rect>
+       <x>90</x>
+       <y>150</y>
+       <width>71</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Topic LEDS</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="topic_2">
+     <property name="geometry">
+      <rect>
+       <x>170</x>
+       <y>150</y>
+       <width>164</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>rxtopic</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_7">
+     <property name="geometry">
+      <rect>
+       <x>90</x>
+       <y>180</y>
+       <width>71</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Topic SENSOR</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="topic_3">
+     <property name="geometry">
+      <rect>
+       <x>170</x>
+       <y>180</y>
+       <width>164</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>rxtopic</string>
      </property>
     </widget>
    </widget>

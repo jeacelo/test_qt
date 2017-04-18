@@ -33,7 +33,7 @@ private slots:
     void onMQTT_subscribed(const QString &topic);
     void onMQTT_subacked(quint16 msgid, quint8 qos);
 
-    void on_pushButton_3_clicked();
+    void on_config_clicked();
 
     void on_redCheck_toggled(bool checked);
 

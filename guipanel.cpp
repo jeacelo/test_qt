@@ -281,17 +281,17 @@ void GUIPanel::onMQTT_Connacked(quint8 ack)
     ui->statusLabel->setText(tr("connacked: %1, %2").arg(ack).arg(ackStatus));
 }
 
-void GUIPanel::on_pushButton_3_clicked()
+void GUIPanel::on_config_clicked()
 {
     QString topic ("/cc3200/");
+    topic.append(ui->topic->text());
 
-    QJsonObject objeto_json
-    {
-        {ui->message->text(), 1}
-    };
+    QJsonObject objeto_json;
+    objeto_json["LEDS"]=ui->topic_2->text();
+    objeto_json["SENSOR"]=ui->topic_3->text();
+
     QJsonDocument mensaje(objeto_json); //crea un objeto de tivo QJsonDocument conteniendo el objeto objeto_json (necesario para obtener el mensaje formateado en JSON)
 
-    topic.append(ui->topic->text());
     QMQTT::Message msg(0, topic, mensaje.toJson()); //Crea el mensaje MQTT contieniendo el mensaje en formato JSON//MOD
 
     //Publica el mensaje
@@ -376,7 +376,7 @@ void GUIPanel::on_pushButton_4_released()
 {
     QByteArray cadena;
     QString topic ("/cc3200/");
-    topic.append(ui->topic->text());
+    topic.append(ui->topic_2->text());
 
     QJsonObject objeto_json;
     objeto_json["LED"]=ui->ledKnob->value();
@@ -396,7 +396,7 @@ void GUIPanel::on_pushButton_5_released()
     {
         QByteArray cadena;
         QString topic ("/cc3200/");
-        topic.append(ui->topic->text());
+        topic.append(ui->topic_2->text());
 
         QJsonObject objeto_json;
         objeto_json["LED"]=i;
@@ -414,7 +414,8 @@ void GUIPanel::on_pushButton_5_released()
 void GUIPanel::on_run_temp_released()
 {
     QByteArray cadena;
-    QString topic ("/cc3200/Sensors");
+    QString topic ("/cc3200/");
+    topic.append(ui->topic_3->text());
 
     QJsonObject objeto_json;
     objeto_json["TEMP"]=ui->ref_temp->value();
@@ -430,7 +431,8 @@ void GUIPanel::on_run_temp_released()
 void GUIPanel::on_run_acc_released()
 {
     QByteArray cadena;
-    QString topic ("/cc3200/Sensors");
+    QString topic ("/cc3200/");
+    topic.append(ui->topic_3->text());
 
     QJsonObject objeto_json;
     objeto_json["ACC"]=ui->ref_acc->value();
