@@ -15,6 +15,9 @@
 
 #define SAMPLES 20
 
+QString topic_temp("/cc3200/");
+QString topic_acc("/cc3200/");
+
 int i=0;
 int j=0;
 
@@ -163,7 +166,7 @@ void GUIPanel::onMQTT_Received(const QMQTT::Message &message)
 {
     if (connected)
     {
-        if (message.topic() == "/cc3200/Temp")
+        if (message.topic() == topic_temp)
         {
             //Deshacemos el escalado
             QJsonParseError error;
@@ -191,7 +194,7 @@ void GUIPanel::onMQTT_Received(const QMQTT::Message &message)
                 ui->tempPlot->replot(); //Refresca la grafica una vez actualizados los valores
             }
         }
-        if (message.topic() == "/cc3200/Acc")
+        if (message.topic() == topic_acc)
         {
             //Deshacemos el escalado
             QJsonParseError error;
@@ -238,10 +241,8 @@ void GUIPanel::onMQTT_Received(const QMQTT::Message &message)
  -----------------------------------------------------------*/
 void GUIPanel::onMQTT_Connected()
 {
-    QString topic("/cc3200/");
-    topic.append(ui->topic->text());
-    QString topic_temp("/cc3200/Temp");
-    QString topic_acc("/cc3200/Acc");
+    topic_temp.append((ui->topic_4->text()));
+    topic_acc.append((ui->topic_5->text()));
     ui->runButton->setEnabled(false);
 
     // Se indica que se ha realizado la conexión en la etiqueta 'statusLabel'
@@ -249,7 +250,6 @@ void GUIPanel::onMQTT_Connected()
 
     connected=true;
 
-    _client->subscribe(topic,0); //Se suscribe al mismo topic en el que publica...//MOD
     _client->subscribe(topic_temp,0);
     _client->subscribe(topic_acc,0);
 }
@@ -284,14 +284,14 @@ void GUIPanel::onMQTT_Connacked(quint8 ack)
 void GUIPanel::on_pushButton_3_clicked()
 {
     QString topic ("/cc3200/");
-
-    QJsonObject objeto_json
-    {
-        {ui->message->text(), 1}
-    };
-    QJsonDocument mensaje(objeto_json); //crea un objeto de tivo QJsonDocument conteniendo el objeto objeto_json (necesario para obtener el mensaje formateado en JSON)
-
     topic.append(ui->topic->text());
+
+    QJsonObject objeto_json;
+    objeto_json["LEDS"]=ui->topic_2->text();
+    objeto_json["SENSORS"]=ui->topic_3->text();
+    objeto_json["TEMP"]=ui->topic_4->text();
+    objeto_json["ACC"]=ui->topic_5->text();
+    QJsonDocument mensaje(objeto_json); //crea un objeto de tivo QJsonDocument conteniendo el objeto objeto_json (necesario para obtener el mensaje formateado en JSON)
     QMQTT::Message msg(0, topic, mensaje.toJson()); //Crea el mensaje MQTT contieniendo el mensaje en formato JSON//MOD
 
     //Publica el mensaje
@@ -376,7 +376,7 @@ void GUIPanel::on_pushButton_4_released()
 {
     QByteArray cadena;
     QString topic ("/cc3200/");
-    topic.append(ui->topic->text());
+    topic.append(ui->topic_2->text());
 
     QJsonObject objeto_json;
     objeto_json["LED"]=ui->ledKnob->value();
@@ -396,7 +396,7 @@ void GUIPanel::on_pushButton_5_released()
     {
         QByteArray cadena;
         QString topic ("/cc3200/");
-        topic.append(ui->topic->text());
+        topic.append(ui->topic_2->text());
 
         QJsonObject objeto_json;
         objeto_json["LED"]=i;
@@ -414,7 +414,8 @@ void GUIPanel::on_pushButton_5_released()
 void GUIPanel::on_run_temp_released()
 {
     QByteArray cadena;
-    QString topic ("/cc3200/Sensors");
+    QString topic ("/cc3200/");
+    topic.append(ui->topic_3->text());
 
     QJsonObject objeto_json;
     objeto_json["TEMP"]=ui->ref_temp->value();
@@ -430,7 +431,8 @@ void GUIPanel::on_run_temp_released()
 void GUIPanel::on_run_acc_released()
 {
     QByteArray cadena;
-    QString topic ("/cc3200/Sensors");
+    QString topic ("/cc3200/");
+    topic.append(ui->topic_3->text());
 
     QJsonObject objeto_json;
     objeto_json["ACC"]=ui->ref_acc->value();
