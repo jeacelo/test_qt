@@ -4,6 +4,8 @@
 #include <QWidget>
 #include <QtSerialPort/qserialport.h>
 #include "qmqtt.h"
+#include <qwt_plot_curve.h>
+#include <qwt_plot_grid.h>
 
 namespace Ui {
 class GUIPanel;
@@ -31,7 +33,6 @@ private slots:
     void onMQTT_subscribed(const QString &topic);
     void onMQTT_subacked(quint16 msgid, quint8 qos);
 
-    //void on_pushButton_2_toggled(bool checked);
     void on_pushButton_3_clicked();
 
     void on_redCheck_toggled(bool checked);
@@ -39,6 +40,14 @@ private slots:
     void on_orangeCheck_toggled(bool checked);
 
     void on_greenCheck_toggled(bool checked);
+
+    void on_pushButton_4_released();
+
+    void on_pushButton_5_released();
+
+    void on_run_temp_released();
+
+    void on_run_acc_released();
 
 private: // funciones privadas
 //    void pingDevice();
@@ -51,6 +60,21 @@ private:
     int transactionCount;
     QMQTT::Client *_client;
     bool connected;
+
+    double xValDig_temp[20]; //valores eje X
+    double yValDig_temp[20]; //valores ejes Y
+    double xValDig_acc[20]; //valores eje X
+    double yValDig_acc_x[20]; //valores ejes Y
+    double yValDig_acc_y[20]; //valores ejes Y
+    double yValDig_acc_z[20]; //valores ejes Y
+
+    QwtPlotCurve *curve_temp; //Curvas
+    QwtPlotCurve *curve_accx; //Curvas
+    QwtPlotCurve *curve_accy; //Curvas
+    QwtPlotCurve *curve_accz; //Curvas
+
+    QwtPlotGrid  *m_GridDig; //Cuadricula
+    QwtPlotGrid  *m_GridDig_2; //Cuadricula
 };
 
 #endif // GUIPANEL_H

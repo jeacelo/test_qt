@@ -13,6 +13,14 @@
 #include<stdint.h>      // Cabecera para usar tipos de enteros con tamaño
 #include<stdbool.h>     // Cabecera para usar booleanos
 
+#define SAMPLES 20
+
+QString topic_temp("/cc3200/");
+QString topic_acc("/cc3200/");
+
+int i=0;
+int j=0;
+
 GUIPanel::GUIPanel(QWidget *parent) :  // Constructor de la clase
     QWidget(parent),
     ui(new Ui::GUIPanel)               // Indica que guipanel.ui es el interfaz grafico de la clase
@@ -38,6 +46,64 @@ GUIPanel::GUIPanel(QWidget *parent) :  // Constructor de la clase
     //connect(_client, SIGNAL(disconnected()), this, SLOT(onMQTT_disconnected()));
 
     connected=false;                 // Todavía no hemos establecido la conexión USB
+
+    ui->tempPlot->setTitle("Temperatura"); // Titulo de la grafica
+    ui->tempPlot->setAxisScale(QwtPlot::yLeft, -10, 50); // Escala fija
+    ui->tempPlot->setAxisScale(QwtPlot::xBottom,0,SAMPLES-1);
+    ui->tempPlot->setAxisTitle(QwtPlot::yLeft, "ºC");
+    ui->tempPlot->setAxisTitle(QwtPlot::xBottom, "Muestras");
+
+    curve_temp = new QwtPlotCurve();
+    curve_temp->attach(ui->tempPlot);
+
+    for(int i = 0; i < SAMPLES; i++)
+    {
+        xValDig_temp[i]=i;
+        yValDig_temp[i]=0;
+    }
+
+    curve_temp->setRawSamples(xValDig_temp,yValDig_temp,SAMPLES);
+
+    curve_temp->setPen(QPen(Qt::red));
+
+    m_GridDig = new QwtPlotGrid();     // Rejilla de puntos
+    m_GridDig->attach(ui->tempPlot);    // que se asocia al objeto QwtPl
+
+    ui->tempPlot->setAutoReplot(false); //Desactiva el autoreplot (mejora la eficiencia)
+
+    ui->accPlot->setTitle("Aceleracion"); // Titulo de la grafica
+    ui->accPlot->setAxisScale(QwtPlot::yLeft, -100, 100); // Escala fija
+    ui->accPlot->setAxisScale(QwtPlot::xBottom,0,SAMPLES-1);
+    ui->accPlot->setAxisTitle(QwtPlot::yLeft, "g");
+    ui->accPlot->setAxisTitle(QwtPlot::xBottom, "Muestras");
+
+    curve_accx = new QwtPlotCurve();
+    curve_accy = new QwtPlotCurve();
+    curve_accz = new QwtPlotCurve();
+    curve_accx->attach(ui->accPlot);
+    curve_accy->attach(ui->accPlot);
+    curve_accz->attach(ui->accPlot);
+
+    for(int i = 0; i < SAMPLES; i++)
+    {
+        xValDig_acc[i]=i;
+        yValDig_acc_x[i]=0;
+        yValDig_acc_y[i]=0;
+        yValDig_acc_z[i]=0;
+    }
+
+    curve_accx->setRawSamples(xValDig_acc,yValDig_acc_x,SAMPLES);
+    curve_accy->setRawSamples(xValDig_acc,yValDig_acc_y,SAMPLES);
+    curve_accz->setRawSamples(xValDig_acc,yValDig_acc_z,SAMPLES);
+
+    curve_accx->setPen(QPen(Qt::red));
+    curve_accy->setPen(QPen(Qt::green));
+    curve_accz->setPen(QPen(Qt::blue));
+
+    m_GridDig_2 = new QwtPlotGrid();     // Rejilla de puntos
+    m_GridDig_2->attach(ui->accPlot);    // que se asocia al objeto QwtPl
+
+    ui->accPlot->setAutoReplot(false); //Desactiva el autoreplot (mejora la eficiencia)
 }
 
 GUIPanel::~GUIPanel() // Destructor de la clase
@@ -98,42 +164,74 @@ void GUIPanel::on_pushButton_clicked()
 
 void GUIPanel::onMQTT_Received(const QMQTT::Message &message)
 {
-    bool previousblockinstate,checked;
     if (connected)
     {
-        //Deshacemos el escalado
-        previousblockinstate=ui->pushButton_2->blockSignals(true);   //Esto es para evitar que el cambio de valor
-                                                             //provoque otro envio al topic por el que he recibido
+        if (message.topic() == topic_temp)
+        {
+            //Deshacemos el escalado
+            QJsonParseError error;
+            QJsonDocument mensaje=QJsonDocument::fromJson(message.payload(),&error);
 
-        QJsonParseError error;
-        QJsonDocument mensaje=QJsonDocument::fromJson(message.payload(),&error);
+            if ((error.error==QJsonParseError::NoError)&&(mensaje.isObject()))
+            { //Tengo que comprobar que el mensaje es del tipo adecuado y no hay errores de parseo...
 
-        if ((error.error==QJsonParseError::NoError)&&(mensaje.isObject()))
-        { //Tengo que comprobar que el mensaje es del tipo adecuado y no hay errores de parseo...
-
-            QJsonObject objeto_json=mensaje.object();
-            QJsonValue entrada=objeto_json["led"]; //Obtengo la entrada led. Esto lo puedo hacer porque el operador [] está sobreescrito
-
-
-            if (entrada.isBool())
-            {   //Compruebo que es booleano...
-
-                checked=entrada.toBool(); //Leo el valor de objeto (si fuese entero usaria toInt(), toDouble() si es doble....
-
-                ui->pushButton_2->setChecked(checked);
-                if (checked)
+                QJsonObject objeto_json=mensaje.object();
+                QJsonValue entrada=objeto_json["Temperature"]; //Obtengo la entrada led. Esto lo puedo hacer porque el operador [] está sobreescrito
+                ui->thermometer->setValue(entrada.toDouble());
+                if (i>19)
                 {
-                    ui->pushButton_2->setText("Apaga");
-
+                    for (int k = 0; k < 19; k++)
+                    {
+                        yValDig_temp[k]=yValDig_temp[k+1];
+                    }
+                    yValDig_temp[i-1] = entrada.toDouble();
                 }
                 else
                 {
-                    ui->pushButton_2->setText("Enciende");
+                    yValDig_temp[i] = entrada.toDouble();
+                    i++;
                 }
+                ui->tempPlot->replot(); //Refresca la grafica una vez actualizados los valores
             }
         }
+        if (message.topic() == topic_acc)
+        {
+            //Deshacemos el escalado
+            QJsonParseError error;
+            QJsonDocument mensaje=QJsonDocument::fromJson(message.payload(),&error);
 
-        ui->pushButton_2->blockSignals(previousblockinstate);
+            if ((error.error==QJsonParseError::NoError)&&(mensaje.isObject()))
+            { //Tengo que comprobar que el mensaje es del tipo adecuado y no hay errores de parseo...
+
+                QJsonObject objeto_json=mensaje.object();
+                QJsonValue entrada_X=objeto_json["AccX"]; //Obtengo la entrada led. Esto lo puedo hacer porque el operador [] está sobreescrito
+                QJsonValue entrada_Y=objeto_json["AccY"]; //Obtengo la entrada led. Esto lo puedo hacer porque el operador [] está sobreescrito
+                QJsonValue entrada_Z=objeto_json["AccZ"]; //Obtengo la entrada led. Esto lo puedo hacer porque el operador [] está sobreescrito
+                ui->accX->display(entrada_X.toDouble());
+                ui->accY->display(entrada_Y.toDouble());
+                ui->accZ->display(entrada_Z.toDouble());
+                if (j>19)
+                {
+                    for (int k = 0; k < 19; k++)
+                    {
+                        yValDig_acc_x[k]=yValDig_acc_x[k+1];
+                        yValDig_acc_y[k]=yValDig_acc_y[k+1];
+                        yValDig_acc_z[k]=yValDig_acc_z[k+1];
+                    }
+                    yValDig_acc_x[j-1] = entrada_X.toDouble();
+                    yValDig_acc_y[j-1] = entrada_Y.toDouble();
+                    yValDig_acc_z[j-1] = entrada_Z.toDouble();
+                }
+                else
+                {
+                    yValDig_acc_x[j] = entrada_X.toDouble();
+                    yValDig_acc_y[j] = entrada_Y.toDouble();
+                    yValDig_acc_z[j] = entrada_Z.toDouble();
+                    j++;
+                }
+                ui->accPlot->replot(); //Refresca la grafica una vez actualizados los valores
+            }
+        }
     }
 }
 
@@ -143,8 +241,8 @@ void GUIPanel::onMQTT_Received(const QMQTT::Message &message)
  -----------------------------------------------------------*/
 void GUIPanel::onMQTT_Connected()
 {
-    QString topic("/cc3200/");
-    topic.append(ui->topic->text());
+    topic_temp.append((ui->topic_4->text()));
+    topic_acc.append((ui->topic_5->text()));
     ui->runButton->setEnabled(false);
 
     // Se indica que se ha realizado la conexión en la etiqueta 'statusLabel'
@@ -152,7 +250,8 @@ void GUIPanel::onMQTT_Connected()
 
     connected=true;
 
-    _client->subscribe(topic,0); //Se suscribe al mismo topic en el que publica...//MOD
+    _client->subscribe(topic_temp,0);
+    _client->subscribe(topic_acc,0);
 }
 
 void GUIPanel::onMQTT_Connacked(quint8 ack)
@@ -182,36 +281,17 @@ void GUIPanel::onMQTT_Connacked(quint8 ack)
     ui->statusLabel->setText(tr("connacked: %1, %2").arg(ack).arg(ackStatus));
 }
 
-/*void GUIPanel::on_pushButton_2_toggled(bool checked)
+void GUIPanel::on_pushButton_3_clicked()
 {
-    QByteArray cadena;
     QString topic ("/cc3200/");
     topic.append(ui->topic->text());
 
     QJsonObject objeto_json;
-    objeto_json["redLed"]=ui->redCheck->isChecked();
-    objeto_json["greenLed"]=ui->greenCheck->isChecked();
-    objeto_json["orangeLed"]=ui->orangeCheck->isChecked();
-    //Añade un campo "led" al objeto JSON, con el valor (true o false) contenido en checked
-                                //Puedo hacer ["led"] porque el operador [] está sobreescrito.
-    QJsonDocument mensaje(objeto_json); //crea un objeto de t-ivo QJsonDocument conteniendo el objeto objeto_json (necesario para obtener el mensaje formateado en JSON)
-    QMQTT::Message msg(0, topic, mensaje.toJson()); //Crea el mensaje MQTT contieniendo el mensaje en formato JSON//MOD
-
-    //Publica el mensaje
-    _client->publish(msg);
-}*/
-
-void GUIPanel::on_pushButton_3_clicked()
-{
-    QString topic ("/cc3200/");
-
-    QJsonObject objeto_json
-    {
-        {ui->message->text(), 1}
-    };
+    objeto_json["LEDS"]=ui->topic_2->text();
+    objeto_json["SENSORS"]=ui->topic_3->text();
+    objeto_json["TEMP"]=ui->topic_4->text();
+    objeto_json["ACC"]=ui->topic_5->text();
     QJsonDocument mensaje(objeto_json); //crea un objeto de tivo QJsonDocument conteniendo el objeto objeto_json (necesario para obtener el mensaje formateado en JSON)
-
-    topic.append(ui->topic->text());
     QMQTT::Message msg(0, topic, mensaje.toJson()); //Crea el mensaje MQTT contieniendo el mensaje en formato JSON//MOD
 
     //Publica el mensaje
@@ -285,6 +365,79 @@ void GUIPanel::on_greenCheck_toggled(bool checked)
 
     QJsonObject objeto_json;
     objeto_json["greenLed"]=checked;
+    QJsonDocument mensaje(objeto_json); //crea un objeto de t-ivo QJsonDocument conteniendo el objeto objeto_json (necesario para obtener el mensaje formateado en JSON)
+    QMQTT::Message msg(0, topic, mensaje.toJson()); //Crea el mensaje MQTT contieniendo el mensaje en formato JSON//MOD
+
+    //Publica el mensaje
+    _client->publish(msg);
+}
+
+void GUIPanel::on_pushButton_4_released()
+{
+    QByteArray cadena;
+    QString topic ("/cc3200/");
+    topic.append(ui->topic_2->text());
+
+    QJsonObject objeto_json;
+    objeto_json["LED"]=ui->ledKnob->value();
+    objeto_json["R"]=ui->colorWheel->color().red();
+    objeto_json["G"]=ui->colorWheel->color().green();
+    objeto_json["B"]=ui->colorWheel->color().blue();
+    QJsonDocument mensaje(objeto_json); //crea un objeto de t-ivo QJsonDocument conteniendo el objeto objeto_json (necesario para obtener el mensaje formateado en JSON)
+    QMQTT::Message msg(0, topic, mensaje.toJson()); //Crea el mensaje MQTT contieniendo el mensaje en formato JSON//MOD
+
+    //Publica el mensaje
+    _client->publish(msg);
+}
+
+void GUIPanel::on_pushButton_5_released()
+{
+    for (int i = 0; i < ui->ledKnob->maximum()+1; i++)
+    {
+        QByteArray cadena;
+        QString topic ("/cc3200/");
+        topic.append(ui->topic_2->text());
+
+        QJsonObject objeto_json;
+        objeto_json["LED"]=i;
+        objeto_json["R"]=0;
+        objeto_json["G"]=0;
+        objeto_json["B"]=0;
+        QJsonDocument mensaje(objeto_json); //crea un objeto de t-ivo QJsonDocument conteniendo el objeto objeto_json (necesario para obtener el mensaje formateado en JSON)
+        QMQTT::Message msg(0, topic, mensaje.toJson()); //Crea el mensaje MQTT contieniendo el mensaje en formato JSON//MOD
+
+        //Publica el mensaje
+        _client->publish(msg);
+    }
+}
+
+void GUIPanel::on_run_temp_released()
+{
+    QByteArray cadena;
+    QString topic ("/cc3200/");
+    topic.append(ui->topic_3->text());
+
+    QJsonObject objeto_json;
+    objeto_json["TEMP"]=ui->ref_temp->value();
+    objeto_json["ACC"]=-1;
+
+    QJsonDocument mensaje(objeto_json); //crea un objeto de t-ivo QJsonDocument conteniendo el objeto objeto_json (necesario para obtener el mensaje formateado en JSON)
+    QMQTT::Message msg(0, topic, mensaje.toJson()); //Crea el mensaje MQTT contieniendo el mensaje en formato JSON//MOD
+
+    //Publica el mensaje
+    _client->publish(msg);
+}
+
+void GUIPanel::on_run_acc_released()
+{
+    QByteArray cadena;
+    QString topic ("/cc3200/");
+    topic.append(ui->topic_3->text());
+
+    QJsonObject objeto_json;
+    objeto_json["ACC"]=ui->ref_acc->value();
+    objeto_json["TEMP"]=-1;
+
     QJsonDocument mensaje(objeto_json); //crea un objeto de t-ivo QJsonDocument conteniendo el objeto objeto_json (necesario para obtener el mensaje formateado en JSON)
     QMQTT::Message msg(0, topic, mensaje.toJson()); //Crea el mensaje MQTT contieniendo el mensaje en formato JSON//MOD
 
