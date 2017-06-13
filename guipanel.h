@@ -35,12 +35,6 @@ private slots:
 
     void on_pushButton_3_clicked();
 
-    void on_redCheck_toggled(bool checked);
-
-    void on_orangeCheck_toggled(bool checked);
-
-    void on_greenCheck_toggled(bool checked);
-
     void on_pushButton_4_released();
 
     void on_pushButton_5_released();

@@ -298,80 +298,6 @@ void GUIPanel::on_pushButton_3_clicked()
     _client->publish(msg);
 }
 
-/*void GUIPanel::on_greenKnob_valueChanged(double value)
-{
-    ui->green_lcdNumber->setValue(value);
-}
-
-void GUIPanel::on_green_lcdNumber_valueChanged(int arg1)
-{
-    ui->greenKnob->setValue(arg1);
-}
-
-void GUIPanel::on_pushButton_4_clicked()
-{
-    QString topic ("/cc3200/");
-
-    QJsonObject objeto_json;
-    objeto_json["r"]=ui->redKnob->value();
-    objeto_json["y"]=ui->yellowKnob->value();
-    objeto_json["g"]=ui->greenKnob->value();
-
-    QJsonDocument mensaje(objeto_json); //crea un objeto de tivo QJsonDocument conteniendo el objeto objeto_json (necesario para obtener el mensaje formateado en JSON)
-
-    topic.append(ui->topic->text());
-
-    QMQTT::Message msg(0, topic, mensaje.toJson()); //Crea el mensaje MQTT contieniendo el mensaje en formato JSON//MOD
-
-    //Publica el mensaje
-    _client->publish(msg);
-}*/
-
-void GUIPanel::on_redCheck_toggled(bool checked)
-{
-    QByteArray cadena;
-    QString topic ("/cc3200/");
-    topic.append(ui->topic->text());
-
-    QJsonObject objeto_json;
-    objeto_json["redLed"]=checked;
-    QJsonDocument mensaje(objeto_json); //crea un objeto de t-ivo QJsonDocument conteniendo el objeto objeto_json (necesario para obtener el mensaje formateado en JSON)
-    QMQTT::Message msg(0, topic, mensaje.toJson()); //Crea el mensaje MQTT contieniendo el mensaje en formato JSON//MOD
-
-    //Publica el mensaje
-    _client->publish(msg);
-}
-
-void GUIPanel::on_orangeCheck_toggled(bool checked)
-{
-    QByteArray cadena;
-    QString topic ("/cc3200/");
-    topic.append(ui->topic->text());
-
-    QJsonObject objeto_json;
-    objeto_json["orangeLed"]=checked;
-    QJsonDocument mensaje(objeto_json); //crea un objeto de t-ivo QJsonDocument conteniendo el objeto objeto_json (necesario para obtener el mensaje formateado en JSON)
-    QMQTT::Message msg(0, topic, mensaje.toJson()); //Crea el mensaje MQTT contieniendo el mensaje en formato JSON//MOD
-
-    //Publica el mensaje
-    _client->publish(msg);
-}
-
-void GUIPanel::on_greenCheck_toggled(bool checked)
-{
-    QByteArray cadena;
-    QString topic ("/cc3200/");
-    topic.append(ui->topic->text());
-
-    QJsonObject objeto_json;
-    objeto_json["greenLed"]=checked;
-    QJsonDocument mensaje(objeto_json); //crea un objeto de t-ivo QJsonDocument conteniendo el objeto objeto_json (necesario para obtener el mensaje formateado en JSON)
-    QMQTT::Message msg(0, topic, mensaje.toJson()); //Crea el mensaje MQTT contieniendo el mensaje en formato JSON//MOD
-
-    //Publica el mensaje
-    _client->publish(msg);
-}
-
 void GUIPanel::on_pushButton_4_released()
 {
     QByteArray cadena;
@@ -394,7 +320,6 @@ void GUIPanel::on_pushButton_5_released()
 {
     for (int i = 0; i < ui->ledKnob->maximum()+1; i++)
     {
-        QByteArray cadena;
         QString topic ("/cc3200/");
         topic.append(ui->topic_2->text());
 
@@ -413,13 +338,11 @@ void GUIPanel::on_pushButton_5_released()
 
 void GUIPanel::on_run_temp_released()
 {
-    QByteArray cadena;
     QString topic ("/cc3200/");
     topic.append(ui->topic_3->text());
 
     QJsonObject objeto_json;
     objeto_json["TEMP"]=ui->ref_temp->value();
-    objeto_json["ACC"]=-1;
 
     QJsonDocument mensaje(objeto_json); //crea un objeto de t-ivo QJsonDocument conteniendo el objeto objeto_json (necesario para obtener el mensaje formateado en JSON)
     QMQTT::Message msg(0, topic, mensaje.toJson()); //Crea el mensaje MQTT contieniendo el mensaje en formato JSON//MOD
@@ -430,13 +353,11 @@ void GUIPanel::on_run_temp_released()
 
 void GUIPanel::on_run_acc_released()
 {
-    QByteArray cadena;
     QString topic ("/cc3200/");
     topic.append(ui->topic_3->text());
 
     QJsonObject objeto_json;
     objeto_json["ACC"]=ui->ref_acc->value();
-    objeto_json["TEMP"]=-1;
 
     QJsonDocument mensaje(objeto_json); //crea un objeto de t-ivo QJsonDocument conteniendo el objeto objeto_json (necesario para obtener el mensaje formateado en JSON)
     QMQTT::Message msg(0, topic, mensaje.toJson()); //Crea el mensaje MQTT contieniendo el mensaje en formato JSON//MOD
